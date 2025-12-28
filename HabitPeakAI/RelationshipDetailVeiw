@@ -1,0 +1,108 @@
+//
+//  RelationshipDetailView.swift
+//  HabitPeakAI
+//
+//  Created by Justin Sharma on 2025-12-27.
+//
+
+import SwiftUI
+import SwiftData
+
+struct RelationshipsDetailView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(colors: [.pink.opacity(0.8), .red.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 30) {
+                // Principle Header
+                VStack(spacing: 10) {
+                    Image(systemName: "heart.circle.fill")
+                        .font(.system(size: 60))
+                        .foregroundStyle(.white)
+                    
+                    Text("RELATIONSHIPS")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.white)
+                    
+                    Text("Connection beats conflict resolution")
+                        .font(.subheadline.weight(.medium))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .foregroundStyle(.white.opacity(0.9))
+                }
+                
+                // 5 AI Habits
+                VStack(spacing: 20) {
+                    RelationshipsHabitButton(name: "6-Second Kiss", subtitle: "Daily physical connection", icon: "heart")
+                    RelationshipsHabitButton(name: "Daily Appreciation", subtitle: "Specific verbal gratitude", icon: "hand.thumbsup")
+                    RelationshipsHabitButton(name: "Emotional Check-In", subtitle: "\"How are you really?\"", icon: "face.smiling")
+                    RelationshipsHabitButton(name: "Repair Attempt", subtitle: "De-escalation script", icon: "arrow.clockwise")
+                    RelationshipsHabitButton(name: "Weekly Relationship Pulse", subtitle: "Connection quality check", icon: "waveform.path.ecg")
+                }
+                
+                Spacer()
+                
+                Button("← Back to Wizard") {
+                    dismiss()
+                }
+                .font(.title2.bold())
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(.white, in: Capsule())
+                .foregroundStyle(.pink)
+            }
+            .padding()
+        }
+    }
+}
+
+struct RelationshipsHabitButton: View {
+    let name: String
+    let subtitle: String
+    let icon: String
+    @Environment(\.modelContext) private var modelContext
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(.pink)
+                .frame(width: 40)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(name)
+                    .font(.headline.bold())
+                    .foregroundStyle(.white)
+                Text(subtitle)
+                    .font(.headline.bold())
+                    .foregroundStyle(.white.opacity(0.9))
+                    .lineLimit(2)
+            }
+            
+            Spacer()
+            
+            Button(action: {
+                let newHabit = Habit(name: name, category: "Relationships")
+                modelContext.insert(newHabit)
+                print("✅ Added: \(name) to SwiftData")
+            }) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+                    .scaleEffect(1.1)
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .frame(height: 70)
+    }
+}
+
+#Preview {
+    RelationshipsDetailView()
+        .modelContainer(for: Habit.self)
+}
