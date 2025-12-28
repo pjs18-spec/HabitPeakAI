@@ -10,52 +10,97 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @Query private var habits: [Habit]
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        NavigationStack {
+            ZStack {
+                LinearGradient(
+                    colors: [.blue.opacity(0.8), .purple.opacity(0.8)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                VStack(spacing: 30) {
+                    VStack(spacing: 10) {
+                        Image(systemName: "mountain.2.fill")
+                            .font(.system(size: 80))
+                            .foregroundStyle(.white)
+                        
+                        Text("HabitPeak AI")
+                            .font(.largeTitle.bold())
+                            .foregroundStyle(.white)
                     }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                    
+                    VStack(alignment: .leading, spacing: 15) {
+                        HStack {
+                            Image(systemName: "brain.head.profile")
+                                .foregroundStyle(.yellow)
+                            Text("AI Categories")
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                        }
+                        
+                        LazyVGrid(columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible())
+                        ], spacing: 16) {
+                            AIHabitButton(name: "Longevity", category: "Vitality", color: .green)
+                            AIHabitButton(name: "Mental Health", category: "Mindset", color: .blue)
+                            
+                            AIHabitButton(name: "Mindfulness", category: "Presence", color: .purple)
+                            AIHabitButton(name: "Career", category: "Growth", color: .orange)
+                            
+                            AIHabitButton(name: "Relationships", category: "Connection", color: .pink)
+                            AIHabitButton(name: "Parenting", category: "Family", color: .teal)
+                            
+                            AIHabitButton(name: "Fitness", category: "Strength", color: .red)
+                            AIHabitButton(name: "Self Love", category: "Wellness", color: .indigo)
+                        }
                     }
+                    .padding()
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+                    
+                    Spacer()
+                    
+                    NavigationLink("Start Tracking") {
+                        HabitsListView()
+                    }
+                    .font(.title2.bold())
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(.white, in: Capsule())
+                    .foregroundStyle(.blue)
                 }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+                .padding()
             }
         }
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+struct AIHabitButton: View {
+    let name: String
+    let category: String
+    let color: Color
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(name)
+                .font(.headline)
+                .foregroundStyle(.white)
+                .fontWeight(.semibold)
+                .lineLimit(1)
+                .minimumScaleFactor(0.9)  // Shrink long text
+            
+            Text(category)
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.8))
+                .lineLimit(1)
+        }
+        .padding(12)  // Consistent padding
+        .frame(maxWidth: .infinity, maxHeight: 70)  // ✅ FIXED
+        .background(color.opacity(0.2), in: RoundedRectangle(cornerRadius: 16))
+    }
 }
+
