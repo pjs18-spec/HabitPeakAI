@@ -1,0 +1,108 @@
+//
+//  MindfulnessDetailView.swift
+//  HabitPeakAI
+//
+//  Created by Justin Sharma on 2025-12-27.
+//
+
+import SwiftUI
+import SwiftData
+
+struct MindfulnessDetailView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(colors: [.purple.opacity(0.8), .pink.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 30) {
+                // Principle Header
+                VStack(spacing: 10) {
+                    Image(systemName: "figure.mind.and.body")
+                        .font(.system(size: 60))
+                        .foregroundStyle(.white)
+                    
+                    Text("MINDFULNESS")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.white)
+                    
+                    Text("Awareness precedes change")
+                        .font(.subheadline.weight(.medium))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .foregroundStyle(.white.opacity(0.9))
+                }
+                
+                // 5 AI Habits
+                VStack(spacing: 20) {
+                    MindfulnessHabitButton(name: "3-Minute Stillness", subtitle: "Pure awareness practice", icon: "clock")
+                    MindfulnessHabitButton(name: "Single-Task Lock", subtitle: "Silence distractions for 25 min", icon: "nosign")
+                    MindfulnessHabitButton(name: "Sensory Grounding", subtitle: "5-4-3-2-1 reset", icon: "eye")
+                    MindfulnessHabitButton(name: "Daily Intention Set", subtitle: "One clear focus for today", icon: "target")
+                    MindfulnessHabitButton(name: "Gratitude Precision", subtitle: "One specific, non-generic win", icon: "heart")
+                }
+                
+                Spacer()
+                
+                Button("← Back to Wizard") {
+                    dismiss()
+                }
+                .font(.title2.bold())
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(.white, in: Capsule())
+                .foregroundStyle(.purple)
+            }
+            .padding()
+        }
+    }
+}
+
+struct MindfulnessHabitButton: View {
+    let name: String
+    let subtitle: String
+    let icon: String
+    @Environment(\.modelContext) private var modelContext
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(.purple)
+                .frame(width: 40)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(name)
+                    .font(.headline.bold())
+                    .foregroundStyle(.white)
+                Text(subtitle)
+                    .font(.headline.bold())
+                    .foregroundStyle(.white.opacity(0.9))
+                    .lineLimit(2)
+            }
+            
+            Spacer()
+            
+            Button(action: {
+                let newHabit = Habit(name: name, category: "Mindfulness")
+                modelContext.insert(newHabit)
+                print("✅ Added: \(name) to SwiftData")
+            }) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+                    .scaleEffect(1.1)
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .frame(height: 70)
+    }
+}
+
+#Preview {
+    MindfulnessDetailView()
+        .modelContainer(for: Habit.self)
+}
