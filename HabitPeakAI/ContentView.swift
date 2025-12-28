@@ -46,15 +46,17 @@ struct ContentView: View {
                             GridItem(.flexible()),
                             GridItem(.flexible())
                         ], spacing: 16) {
-                            AIHabitButton(name: "Longevity", category: "Vitality", color: .green)
-                            AIHabitButton(name: "Mental Health", category: "Mindset", color: .blue)
+                            // LONGIVITY - NAVIGATION
+                            NavigationLink(destination: LongevityDetailView()) {
+                                AIHabitButton(name: "Longevity", category: "Vitality", color: .green)
+                            }
+                            .buttonStyle(PlainButtonStyle())
                             
+                            AIHabitButton(name: "Mental Health", category: "Mindset", color: .blue)
                             AIHabitButton(name: "Mindfulness", category: "Presence", color: .purple)
                             AIHabitButton(name: "Career", category: "Growth", color: .orange)
-                            
                             AIHabitButton(name: "Relationships", category: "Connection", color: .pink)
                             AIHabitButton(name: "Parenting", category: "Family", color: .teal)
-                            
                             AIHabitButton(name: "Fitness", category: "Strength", color: .red)
                             AIHabitButton(name: "Self Love", category: "Wellness", color: .indigo)
                         }
@@ -91,16 +93,20 @@ struct AIHabitButton: View {
                 .foregroundStyle(.white)
                 .fontWeight(.semibold)
                 .lineLimit(1)
-                .minimumScaleFactor(0.9)  // Shrink long text
+                .minimumScaleFactor(0.9)
             
             Text(category)
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.8))
                 .lineLimit(1)
         }
-        .padding(12)  // Consistent padding
-        .frame(maxWidth: .infinity, maxHeight: 70)  // ✅ FIXED
+        .padding(12)
+        .frame(maxWidth: .infinity, maxHeight: 70)
         .background(color.opacity(0.2), in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
+#Preview {
+    ContentView()
+        .modelContainer(for: Habit.self)
+}
