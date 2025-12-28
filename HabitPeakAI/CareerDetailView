@@ -1,0 +1,108 @@
+//
+//  CareerDetailView.swift
+//  HabitPeakAI
+//
+//  Created by Justin Sharma on 2025-12-27.
+//
+
+import SwiftUI
+import SwiftData
+
+struct CareerDetailView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(colors: [.orange.opacity(0.8), .yellow.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 30) {
+                // Principle Header
+                VStack(spacing: 10) {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .font(.system(size: 60))
+                        .foregroundStyle(.white)
+                    
+                    Text("CAREER")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.white)
+                    
+                    Text("Energy > time. Leverage > effort")
+                        .font(.subheadline.weight(.medium))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .foregroundStyle(.white.opacity(0.9))
+                }
+                
+                // 5 AI Habits
+                VStack(spacing: 20) {
+                    CareerHabitButton(name: "Top 1 Outcome", subtitle: "Today's highest leverage task", icon: "target")
+                    CareerHabitButton(name: "Deep Work Block", subtitle: "60–90 min protected focus", icon: "hourglass")
+                    CareerHabitButton(name: "Decision Offload", subtitle: "Automate / delegate / delete", icon: "arrow.triangle.swap")
+                    CareerHabitButton(name: "Skill Edge Practice", subtitle: "20 min compounding skill", icon: "brain")
+                    CareerHabitButton(name: "Weekly Career Flywheel", subtitle: "Review & adjust trajectory", icon: "arrow.triangle.2.circlepath")
+                }
+                
+                Spacer()
+                
+                Button("← Back to Wizard") {
+                    dismiss()
+                }
+                .font(.title2.bold())
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(.white, in: Capsule())
+                .foregroundStyle(.orange)
+            }
+            .padding()
+        }
+    }
+}
+
+struct CareerHabitButton: View {
+    let name: String
+    let subtitle: String
+    let icon: String
+    @Environment(\.modelContext) private var modelContext
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(.orange)
+                .frame(width: 40)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(name)
+                    .font(.headline.bold())
+                    .foregroundStyle(.white)
+                Text(subtitle)
+                    .font(.headline.bold())
+                    .foregroundStyle(.white.opacity(0.9))
+                    .lineLimit(2)
+            }
+            
+            Spacer()
+            
+            Button(action: {
+                let newHabit = Habit(name: name, category: "Career")
+                modelContext.insert(newHabit)
+                print("✅ Added: \(name) to SwiftData")
+            }) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+                    .scaleEffect(1.1)
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .frame(height: 70)
+    }
+}
+
+#Preview {
+    CareerDetailView()
+        .modelContainer(for: Habit.self)
+}
