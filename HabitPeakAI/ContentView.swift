@@ -52,13 +52,40 @@ struct ContentView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             
-                            AIHabitButton(name: "Mental Health", category: "Mindset", color: .blue)
-                            AIHabitButton(name: "Mindfulness", category: "Presence", color: .purple)
-                            AIHabitButton(name: "Career", category: "Growth", color: .orange)
-                            AIHabitButton(name: "Relationships", category: "Connection", color: .pink)
-                            AIHabitButton(name: "Parenting", category: "Family", color: .teal)
-                            AIHabitButton(name: "Fitness", category: "Strength", color: .red)
-                            AIHabitButton(name: "Self Love", category: "Wellness", color: .indigo)
+                            NavigationLink(destination: MentalHealthDetailView()) {
+                                AIHabitButton(name: "Mental Health", category: "Mindset", color: .blue)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: MindfulnessDetailView()) {
+                                AIHabitButton(name: "Mindfulness", category: "Presence", color: .purple)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: CareerDetailView()) {
+                                AIHabitButton(name: "Career", category: "Growth", color: .orange)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: RelationshipsDetailView()) {
+                                AIHabitButton(name: "Relationships", category: "Connection", color: .pink)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: ParentingDetailView()) {
+                                AIHabitButton(name: "Parenting", category: "Family", color: .teal)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: FitnessDetailView()) {
+                                AIHabitButton(name: "Fitness", category: "Strength", color: .red)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: SelfLoveDetailView()) {
+                                AIHabitButton(name: "Self Love", category: "Wellness", color: .indigo)
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                     .padding()
@@ -110,3 +137,4 @@ struct AIHabitButton: View {
     ContentView()
         .modelContainer(for: Habit.self)
 }
+
