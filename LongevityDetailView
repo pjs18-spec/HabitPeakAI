@@ -1,0 +1,106 @@
+//
+//  LongevityDetailView.swift
+//  HabitPeakAI
+//
+//  Created by Justin Sharma on 2025-12-27.
+//
+
+import SwiftUI
+import SwiftData
+
+struct LongevityDetailView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(colors: [.green.opacity(0.8), .blue.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 30) {
+                VStack(spacing: 10) {
+                    Image(systemName: "leaf.fill")
+                        .font(.system(size: 60))
+                        .foregroundStyle(.white)
+                    
+                    Text("LONGIVITY")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.white)
+                    
+                    Text("Delay chronic disease via strength, metabolic health, sleep")
+                        .font(.caption.bold())
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .foregroundStyle(.white.opacity(0.9))
+
+                }
+                
+                VStack(spacing: 20) {
+                    LongevityHabitButton(name: "Zone 2 Lock-In", subtitle: "45–60 min steady cardio", icon: "figure.walk")
+                    LongevityHabitButton(name: "Strength Anchor", subtitle: "Compound lift session", icon: "dumbbell")
+                    LongevityHabitButton(name: "Protein Floor Hit", subtitle: "≥0.8g/lb bodyweight today", icon: "flame")
+                    LongevityHabitButton(name: "Glucose Walk", subtitle: "10-min walk post largest meal", icon: "arrow.triangle.swap")
+                    LongevityHabitButton(name: "Sleep Defense Mode", subtitle: "Caffeine cutoff + bedtime", icon: "bed.double")
+                }
+                
+                Spacer()
+                
+                Button("← Back to Wizard") {
+                    dismiss()
+                }
+                .font(.title2.bold())
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(.white, in: Capsule())
+                .foregroundStyle(.green)
+            }
+            .padding()
+        }
+    }
+}
+
+struct LongevityHabitButton: View {
+    let name: String
+    let subtitle: String
+    let icon: String
+    @Environment(\.modelContext) private var modelContext
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(.green)
+                .frame(width: 40)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(name)
+                    .font(.headline.bold())
+                    .foregroundStyle(.white)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.8))
+            }
+            
+            Spacer()
+            
+            Button(action: {
+                let newHabit = Habit(name: name, category: "Longevity")
+                modelContext.insert(newHabit)
+                print("✅ Added: \(name) to SwiftData")
+            }) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+                    .scaleEffect(1.1)
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .frame(height: 70)
+    }
+}
+
+#Preview {
+    LongevityDetailView()
+        .modelContainer(for: Habit.self)
+}
