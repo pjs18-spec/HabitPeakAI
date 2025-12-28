@@ -1,0 +1,108 @@
+//
+//  ParentingDetailView.swift
+//  HabitPeakAI
+//
+//  Created by Justin Sharma on 2025-12-27.
+//
+
+import SwiftUI
+import SwiftData
+
+struct ParentingDetailView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(colors: [.teal.opacity(0.8), .mint.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 30) {
+                // Principle Header
+                VStack(spacing: 10) {
+                    Image(systemName: "person.2.fill")
+                        .font(.system(size: 60))
+                        .foregroundStyle(.white)
+                    
+                    Text("PARENTING")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.white)
+                    
+                    Text("Connection before correction")
+                        .font(.subheadline.weight(.medium))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .foregroundStyle(.white.opacity(0.9))
+                }
+                
+                // 5 AI Habits
+                VStack(spacing: 20) {
+                    ParentingHabitButton(name: "10-Minute Special Time", subtitle: "Undivided attention play", icon: "clock")
+                    ParentingHabitButton(name: "Emotion Coaching Moment", subtitle: "Name + validate feelings", icon: "face.smiling")
+                    ParentingHabitButton(name: "Model the Behavior", subtitle: "Be the example you want", icon: "person.badge.shield.checkmark")
+                    ParentingHabitButton(name: "One Praise, One Boundary", subtitle: "Balanced positive + limit", icon: "hand.thumbsup")
+                    ParentingHabitButton(name: "Weekly Child Reflection", subtitle: "What worked this week?", icon: "lightbulb")
+                }
+                
+                Spacer()
+                
+                Button("← Back to Wizard") {
+                    dismiss()
+                }
+                .font(.title2.bold())
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(.white, in: Capsule())
+                .foregroundStyle(.teal)
+            }
+            .padding()
+        }
+    }
+}
+
+struct ParentingHabitButton: View {
+    let name: String
+    let subtitle: String
+    let icon: String
+    @Environment(\.modelContext) private var modelContext
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(.teal)
+                .frame(width: 40)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(name)
+                    .font(.headline.bold())
+                    .foregroundStyle(.white)
+                Text(subtitle)
+                    .font(.headline.bold())
+                    .foregroundStyle(.white.opacity(0.9))
+                    .lineLimit(2)
+            }
+            
+            Spacer()
+            
+            Button(action: {
+                let newHabit = Habit(name: name, category: "Parenting")
+                modelContext.insert(newHabit)
+                print("✅ Added: \(name) to SwiftData")
+            }) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+                    .scaleEffect(1.1)
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .frame(height: 70)
+    }
+}
+
+#Preview {
+    ParentingDetailView()
+        .modelContainer(for: Habit.self)
+}
