@@ -9,21 +9,18 @@ import Foundation
 import SwiftData
 
 @Model
-class Habit {
+final class Habit {
+    var id = UUID()
     var name: String
     var category: String
-    var streak: Int
-    var lastCompleted: Date?
-    var aiSuggested: Bool
-    var completionHistory: [Date]
+    var dateCreated = Date()
     
-    init(name: String, category: String = "General", streak: Int = 0, aiSuggested: Bool = false) {
+    // THESE FIX THE ERRORS:
+    @Attribute(.unique) var streak: Int = 0
+    var lastCompleted: Date?
+    
+    init(name: String, category: String) {
         self.name = name
         self.category = category
-        self.streak = streak
-        self.aiSuggested = aiSuggested
-        self.completionHistory = []
-        self.lastCompleted = nil
     }
 }
-
