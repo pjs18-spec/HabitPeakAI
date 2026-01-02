@@ -38,8 +38,8 @@ struct FitnessDetailView: View {
                 // 5 AI Habits
                 VStack(spacing: 20) {
                     FitnessHabitButton(name: "Strength Session", subtitle: "Push, Pull, Hinge, Squat, Carry", icon: "figure.strengthtraining.traditional")
-                    FitnessHabitButton(name: "Engine Builder", subtitle: "Sustained aerobic", icon: "figure.run")
-                    FitnessHabitButton(name: "Hard Effort", subtitle: "Short, intense work", icon: "flame")
+                    FitnessHabitButton(name: "Engine Builder", subtitle: "Aerobic Build", icon: "figure.run")
+                    FitnessHabitButton(name: "Hard Effort", subtitle: "Quick Intensity", icon: "flame")
                     FitnessHabitButton(name: "Move Well", subtitle: "Mobility and joint health", icon: "figure.yoga")
                     FitnessHabitButton(name: "Recovery Reset", subtitle: "Downshift, breathe, restore", icon: "lungs")
                 }
