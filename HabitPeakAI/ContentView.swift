@@ -1,140 +1,101 @@
-//
-//  ContentView.swift
-//  HabitPeakAI
-//
-//  Created by Justin Sharma on 2025-12-27.
-//
-
 import SwiftUI
 import SwiftData
 
-struct ContentView: View {
+struct CareerDetailView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var habits: [Habit]
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                LinearGradient(
-                    colors: [.blue.opacity(0.8), .purple.opacity(0.8)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+        ZStack {
+            LinearGradient(colors: [.orange.opacity(0.8), .yellow.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing)
                 .ignoresSafeArea()
-                
-                VStack(spacing: 30) {
-                    VStack(spacing: 10) {
-                        Image(systemName: "mountain.2.fill")
-                            .font(.system(size: 80))
-                            .foregroundStyle(.white)
-                        
-                        Text("HabitPeak AI")
-                            .font(.largeTitle.bold())
-                            .foregroundStyle(.white)
-                    }
+            
+            VStack(spacing: 30) {
+                // Principle Header
+                VStack(spacing: 10) {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .font(.system(size: 60))
+                        .foregroundStyle(.white)
                     
-                    VStack(alignment: .leading, spacing: 15) {
-                        HStack {
-                            Image(systemName: "brain.head.profile")
-                                .foregroundStyle(.yellow)
-                            Text("AI Categories")
-                                .font(.headline)
-                                .foregroundStyle(.white)
-                        }
-                        
-                        LazyVGrid(columns: [
-                            GridItem(.flexible()),
-                            GridItem(.flexible())
-                        ], spacing: 16) {
-                            // LONGIVITY - NAVIGATION
-                            NavigationLink(destination: LongevityDetailView()) {
-                                AIHabitButton(name: "Longevity", category: "Vitality", color: .green)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: MentalHealthDetailView()) {
-                                AIHabitButton(name: "Mental Health", category: "Mindset", color: .blue)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: MindfulnessDetailView()) {
-                                AIHabitButton(name: "Mindfulness", category: "Presence", color: .purple)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: CareerDetailView()) {
-                                AIHabitButton(name: "Career", category: "Growth", color: .orange)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: RelationshipsDetailView()) {
-                                AIHabitButton(name: "Relationships", category: "Connection", color: .pink)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: ParentingDetailView()) {
-                                AIHabitButton(name: "Parenting", category: "Family", color: .teal)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: FitnessDetailView()) {
-                                AIHabitButton(name: "Fitness", category: "Strength", color: .red)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: SelfLoveDetailView()) {
-                                AIHabitButton(name: "Self Love", category: "Wellness", color: .indigo)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                    }
-                    .padding()
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+                    Text("CAREER")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.white)
                     
-                    Spacer()
-                    
-                    NavigationLink("Start Tracking") {
-                        HabitsListView()
-                    }
-                    .font(.title2.bold())
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.white, in: Capsule())
-                    .foregroundStyle(.blue)
+                    Text("Energy > time. Leverage > effort")
+                        .font(.subheadline.weight(.medium))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .foregroundStyle(.white.opacity(0.9))
                 }
+                
+                // 5 AI Habits
+                VStack(spacing: 20) {
+                    CareerHabitButton(name: "Top 1 Outcome", subtitle: "Top Task Today", icon: "target")
+                    CareerHabitButton(name: "Deep Work Block", subtitle: "90-Min Deep Focus", icon: "hourglass")
+                    CareerHabitButton(name: "Decision Offload", subtitle: "Automate / delegate / delete", icon: "arrow.triangle.swap")
+                    CareerHabitButton(name: "Skill Edge Practice", subtitle: "20 min Skill Drill", icon: "brain")
+                    CareerHabitButton(name: "Weekly Career Flywheel", subtitle: "Weekly Review", icon: "arrow.triangle.2.circlepath")
+                }
+                
+                Spacer()
+                
+                Button("← Back to Wizard") {
+                    dismiss()
+                }
+                .font(.title2.bold())
+                .frame(maxWidth: .infinity)
                 .padding()
+                .background(.white, in: Capsule())
+                .foregroundStyle(.orange)
             }
+            .padding()
         }
     }
 }
 
-struct AIHabitButton: View {
+struct CareerHabitButton: View {
     let name: String
-    let category: String
-    let color: Color
+    let subtitle: String
+    let icon: String
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(name)
-                .font(.headline)
-                .foregroundStyle(.white)
-                .fontWeight(.semibold)
-                .lineLimit(1)
-                .minimumScaleFactor(0.9)
+        HStack {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(.orange)
+                .frame(width: 40)
             
-            Text(category)
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.8))
-                .lineLimit(1)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(name)
+                    .font(.headline.bold())
+                    .foregroundStyle(.white)
+                Text(subtitle)
+                    .font(.headline.bold())
+                    .foregroundStyle(.white.opacity(0.9))
+                    .lineLimit(2)
+            }
+            
+            Spacer()
+            
+            Button(action: {
+                let newHabit = Habit(name: name, category: "Career")
+                modelContext.insert(newHabit)
+                print("✅ Added: \(name) to SwiftData")
+            }) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+                    .scaleEffect(1.1)
+            }
         }
-        .padding(12)
-        .frame(maxWidth: .infinity, maxHeight: 70)
-        .background(color.opacity(0.2), in: RoundedRectangle(cornerRadius: 16))
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .frame(height: 70)
     }
 }
 
 #Preview {
-    ContentView()
+    CareerDetailView()
         .modelContainer(for: Habit.self)
 }
-
