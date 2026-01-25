@@ -12,19 +12,20 @@ struct SignalsView: View {
     
     // MARK: - Environment
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    
+    // MARK: - Query Daily Signals
     @Query(sort: \DailySignal.date, order: .forward) private var signals: [DailySignal]
-
+    
+    // MARK: - Sample Data Loaded Flag
+    @State private var isLoaded = false
     
     // MARK: - Computed Risk Scores
     private var heartRisk: Double {
         guard !signals.isEmpty else { return 1.0 }
-        // Heart Disease: movement, energy, stress
-        let recent = signals.suffix(7) // last 7 days
+        let recent = signals.suffix(7)
         let score = recent.map { signal in
-            let movementScore = movementWeight(signal.movement)
-            let energyScore = energyWeight(signal.energy)
-            let stressScore = stressWeight(signal.stress)
-            return (movementScore + energyScore + stressScore) / 3.0
+            (movementWeight(signal.movement) + energyWeight(signal.energy) + stressWeight(signal.stress)) / 3.0
         }.average
         return score
     }
@@ -33,9 +34,7 @@ struct SignalsView: View {
         guard !signals.isEmpty else { return 1.0 }
         let recent = signals.suffix(7)
         let score = recent.map { signal in
-            let nutritionScore = nutritionWeight(signal.nutrition)
-            let sleepScore = sleepWeight(signal.sleep)
-            return (nutritionScore + sleepScore) / 2.0
+            (nutritionWeight(signal.nutrition) + sleepWeight(signal.sleep)) / 2.0
         }.average
         return score
     }
@@ -44,9 +43,7 @@ struct SignalsView: View {
         guard !signals.isEmpty else { return 1.0 }
         let recent = signals.suffix(7)
         let score = recent.map { signal in
-            let sleepScore = sleepWeight(signal.sleep)
-            let stressScore = stressWeight(signal.stress)
-            return (sleepScore + stressScore) / 2.0
+            (sleepWeight(signal.sleep) + stressWeight(signal.stress)) / 2.0
         }.average
         return score
     }
@@ -55,42 +52,75 @@ struct SignalsView: View {
         guard !signals.isEmpty else { return 1.0 }
         let recent = signals.suffix(7)
         let score = recent.map { signal in
-            let nutritionScore = nutritionWeight(signal.nutrition)
-            let movementScore = movementWeight(signal.movement)
-            let energyScore = energyWeight(signal.energy)
-            return (nutritionScore + movementScore + energyScore) / 3.0
+            (nutritionWeight(signal.nutrition) + movementWeight(signal.movement) + energyWeight(signal.energy)) / 3.0
         }.average
         return score
     }
     
     // MARK: - Body
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                
-                Text("Your Health Signals")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 24) {
+                    
+                    // Header with Back Button
+                    HStack {
+                        Button(action: {
+                            dismiss() // Works if presented in sheet
+                        }) {
+                            Image(systemName: "chevron.left")
+                                .font(.title2)
+                                .foregroundColor(Color("AccentPrimary"))
+                        }
+                        .padding(.trailing, 4)
+                        
+                        Text("Your Health Signals")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                        
+                        Spacer()
+                    }
                     .padding(.top)
-                
-                // Heart Disease
-                riskCard(title: "Heart Disease", risk: heartRisk, relatedSignals: ["Movement", "Energy", "Stress"])
-                
-                // Cancer
-                riskCard(title: "Cancer", risk: cancerRisk, relatedSignals: ["Nutrition", "Sleep"])
-                
-                // Neurodegenerative Disease
-                riskCard(title: "Neurodegenerative Disease", risk: neuroRisk, relatedSignals: ["Sleep", "Stress"])
-                
-                // Type 2 Diabetes
-                riskCard(title: "Type 2 Diabetes", risk: diabetesRisk, relatedSignals: ["Nutrition", "Movement", "Energy"])
-                
-                Spacer(minLength: 40)
+                    
+                    // Load sample data if empty
+                    if signals.isEmpty {
+                        VStack(spacing: 16) {
+                            Text("No signals yet")
+                                .foregroundColor(.secondary)
+                            Button("Load Sample Signals") {
+                                loadSampleSignals()
+                                isLoaded = true
+                            }
+                            .padding()
+                            .background(Color("AccentPrimary"))
+                            .foregroundColor(Color("ButtonText"))
+                            .cornerRadius(12)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 40)
+                    }
+                    
+                    // Risk Cards
+                    if !signals.isEmpty {
+                        riskCard(title: "Heart Disease", risk: heartRisk, relatedSignals: ["Movement", "Energy", "Stress"])
+                        riskCard(title: "Cancer", risk: cancerRisk, relatedSignals: ["Nutrition", "Sleep"])
+                        riskCard(title: "Neurodegenerative Disease", risk: neuroRisk, relatedSignals: ["Sleep", "Stress"])
+                        riskCard(title: "Type 2 Diabetes", risk: diabetesRisk, relatedSignals: ["Nutrition", "Movement", "Energy"])
+                    }
+                    
+                    Spacer(minLength: 40)
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 40)
             }
-            .padding(.horizontal, 20)
+            .navigationBarHidden(true)
+            .onAppear {
+                if signals.isEmpty && !isLoaded {
+                    loadSampleSignals()
+                    isLoaded = true
+                }
+            }
         }
-        .navigationTitle("Signals")
-        .navigationBarTitleDisplayMode(.inline)
     }
     
     // MARK: - Risk Card
@@ -131,8 +161,7 @@ struct SignalsView: View {
         .shadow(color: Color.black.opacity(0.05), radius: 6, x: 0, y: 4)
     }
     
-    // MARK: - Helper Functions
-    
+    // MARK: - Trend & Risk Helpers
     private func trendValue(for title: String, dayOffset: Int) -> Double {
         guard signals.count > dayOffset else { return 1.0 }
         let signal = signals[signals.count - 1 - dayOffset]
@@ -178,6 +207,20 @@ struct SignalsView: View {
     private func stressWeight(_ value: String) -> Double {
         switch value { case "Low": return 0.0; case "Moderate": return 0.5; default: return 1.0 }
     }
+    
+    // MARK: - Load Sample Signals
+    private func loadSampleSignals() {
+        let sample = DailySignal(
+            date: Date(),
+            movement: "Moderate",
+            energy: "Steady",
+            nutrition: "Balanced",
+            sleep: "Okay",
+            stress: "Moderate"
+        )
+        modelContext.insert(sample)
+        try? modelContext.save()
+    }
 }
 
 // MARK: - Array Average Helper
@@ -188,6 +231,7 @@ extension Array where Element == Double {
     }
 }
 
+// MARK: - Preview
 #Preview {
     NavigationStack {
         SignalsView()
