@@ -9,57 +9,61 @@ import SwiftUI
 import SwiftData
 
 struct DailySignalView: View {
-
+    
     // MARK: - Environment
     @Environment(\.modelContext) private var modelContext
-
+    
     // MARK: - User Selections
     @State private var movement = ""
     @State private var energy = ""
     @State private var nutrition = ""
     @State private var sleep = ""
     @State private var stress = ""
-
+    
     // MARK: - Insight State
     @State private var showInsight = false
     @State private var mainInsight: String = ""
     @State private var microInsights: [String] = []
-
+    
     // MARK: - Animation & Loading States
     @State private var cardSelected: [String: Bool] = [:]
     @State private var pulse = false
     @State private var isGeneratingInsight = false
-
+    
     // MARK: - Daily Reset Tracking
     @AppStorage("lastSignalDate") private var lastSignalDate = Date.distantPast
-
+    
     // MARK: - Options
     let movementOptions = ["Low", "Moderate", "Strong"]
     let energyOptions = ["Low", "Steady", "High"]
     let nutritionOptions = ["Off Track", "Balanced", "Intentional"]
     let sleepOptions = ["Fragmented", "Okay", "Restorative"]
     let stressOptions = ["Low", "Moderate", "High"]
-
+    
+    // MARK: - CTA Height
+    private let bottomCTAHeight: CGFloat = 110
+    
     // MARK: - Computed
     var allComplete: Bool {
         ![movement, energy, nutrition, sleep, stress].contains("")
     }
-
+    
     var shouldResetDaily: Bool {
         let today = Calendar.current.startOfDay(for: Date())
         let lastDate = Calendar.current.startOfDay(for: lastSignalDate)
         return today > lastDate
     }
-
-    // MARK: - Body (BALANCED + TAB BAR SAFE)
+    
+    // MARK: - Body
     var body: some View {
         NavigationView {
             ZStack {
                 Color("Background")
                     .ignoresSafeArea()
-
+                
                 ScrollView(showsIndicators: false) {
                     mainContent
+                        .padding(.bottom, bottomCTAHeight) // Reserve space for CTA
                 }
             }
             .safeAreaInset(edge: .bottom) {
@@ -79,11 +83,11 @@ struct DailySignalView: View {
             }
         }
     }
-
+    
     // MARK: - Main Scroll Content
     private var mainContent: some View {
         VStack(alignment: .leading, spacing: 16) {
-
+            
             // Header
             HStack {
                 VStack(alignment: .leading, spacing: 8) {
@@ -91,7 +95,7 @@ struct DailySignalView: View {
                         .font(.largeTitle)
                         .fontWeight(.semibold)
                         .foregroundColor(Color("PrimaryText"))
-
+                    
                     HStack(spacing: 4) {
                         Image(systemName: "chart.xyaxis.line")
                             .font(.subheadline)
@@ -99,7 +103,7 @@ struct DailySignalView: View {
                             .font(.subheadline)
                             .foregroundColor(Color("SecondaryText"))
                     }
-
+                    
                     if shouldResetDaily {
                         HStack(spacing: 4) {
                             Image(systemName: "arrow.clockwise")
@@ -110,9 +114,9 @@ struct DailySignalView: View {
                         }
                     }
                 }
-
+                
                 Spacer()
-
+                
                 Button(action: resetSignals) {
                     Image(systemName: "arrow.clockwise")
                         .font(.title3)
@@ -126,8 +130,8 @@ struct DailySignalView: View {
                 .opacity(allComplete ? 1.0 : 0.4)
             }
             .padding(.top, 8)
-
-            // Signal Cards
+            
+            // Signal Cards (slightly smaller)
             VStack(spacing: 8) {
                 SignalCard(title: "Movement", selection: $movement, options: movementOptions, cardSelected: $cardSelected)
                 SignalCard(title: "Energy", selection: $energy, options: energyOptions, cardSelected: $cardSelected)
@@ -135,21 +139,22 @@ struct DailySignalView: View {
                 SignalCard(title: "Sleep", selection: $sleep, options: sleepOptions, cardSelected: $cardSelected)
                 SignalCard(title: "Stress Load", selection: $stress, options: stressOptions, cardSelected: $cardSelected)
             }
-
-            // Insight Summary Section
-            insightSummarySection
+            
+            // Insight Summary (only show when allComplete)
+            if allComplete {
+                insightSummarySection
+            }
         }
         .padding(.horizontal, 20)
-        .padding(.bottom, 24) // space above CTA
     }
-
+    
     // MARK: - Fixed Bottom CTA
     private var bottomCTA: some View {
         VStack(spacing: 12) {
             Divider()
                 .background(Color("Divider"))
                 .opacity(0.5)
-
+            
             Button(action: generateInsights) {
                 HStack {
                     if isGeneratingInsight {
@@ -170,20 +175,20 @@ struct DailySignalView: View {
             .disabled(!allComplete || isGeneratingInsight)
             .opacity(allComplete && !isGeneratingInsight ? 1.0 : 0.6)
         }
+        .frame(minHeight: bottomCTAHeight)
         .padding(.horizontal, 20)
         .padding(.top, 8)
-        .padding(.bottom, 12)
         .background(Color("Background").ignoresSafeArea())
     }
-
-    // MARK: - Insight Summary Buttons
+    
+    // MARK: - Insight Summary Section
     private var insightSummarySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-
+        VStack(alignment: .leading, spacing: 14) {
             Text("Insight Summary")
-                .font(.headline)
-                .foregroundColor(Color("PrimaryText"))
-
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(Color("SecondaryText"))
+            
             HStack(spacing: 12) {
                 NavigationLink(destination: DailySignalView()) {
                     summaryButton(
@@ -191,14 +196,14 @@ struct DailySignalView: View {
                         systemImage: "waveform.path.ecg"
                     )
                 }
-
+                
                 NavigationLink(destination: HabitTrackerView()) {
                     summaryButton(
                         title: "Tracker",
                         systemImage: "checkmark.circle"
                     )
                 }
-
+                
                 NavigationLink(destination: HistoryTrendView()) {
                     summaryButton(
                         title: "Trends",
@@ -207,25 +212,30 @@ struct DailySignalView: View {
                 }
             }
         }
+        .padding(16)
+        .background(Color("CardBackground"))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 6)
+        .padding(.top, 8)
     }
-
+    
+    // MARK: - Summary Button
     private func summaryButton(title: String, systemImage: String) -> some View {
         VStack(spacing: 6) {
             Image(systemName: systemImage)
-                .font(.title3)
-
+                .font(.body)
+                .foregroundColor(Color("AccentPrimary"))
+            
             Text(title)
                 .font(.caption)
-                .fontWeight(.medium)
+                .foregroundColor(Color("SecondaryText"))
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 72)
-        .foregroundColor(Color("PrimaryText"))
-        .background(Color("CardBackground"))
+        .frame(height: 64)
+        .background(Color("Background"))
         .clipShape(RoundedRectangle(cornerRadius: 14))
-        .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
     }
-
+    
     // MARK: - Actions
     func generateInsights() {
         let signal = DailySignal(
@@ -238,14 +248,14 @@ struct DailySignalView: View {
         )
         modelContext.insert(signal)
         try? modelContext.save()
-
+        
         isGeneratingInsight = true
         mainInsight = ""
         microInsights = []
-
+        
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 1_500_000_000)
-
+            
             let signals = DailySignals(
                 movement: movement,
                 energy: energy,
@@ -253,19 +263,19 @@ struct DailySignalView: View {
                 sleep: sleep,
                 stress: stress
             )
-
+            
             let result = InsightEngine.generateInsight(from: signals)
             mainInsight = result.mainInsight
             microInsights = result.microInsights
-
+            
             if !mainInsight.isEmpty {
                 showInsight = true
             }
-
+            
             isGeneratingInsight = false
         }
     }
-
+    
     func resetSignals() {
         withAnimation(.easeInOut(duration: 0.3)) {
             movement = ""
@@ -276,42 +286,44 @@ struct DailySignalView: View {
             cardSelected = [:]
         }
     }
-
+    
     func checkDailyReset() {
         if shouldResetDaily {
             resetSignals()
             lastSignalDate = Date()
         }
     }
-
+    
     // MARK: - Signal Card
     struct SignalCard: View {
         let title: String
         @Binding var selection: String
         let options: [String]
         @Binding var cardSelected: [String: Bool]
-
+        
         var body: some View {
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text(title)
-                    .font(.headline)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
                     .foregroundColor(Color("PrimaryText"))
-
-                HStack(spacing: 10) {
+                
+                HStack(spacing: 8) {
                     ForEach(options, id: \.self) { option in
                         Button {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
                                 selection = option
                                 cardSelected[option] = true
                             }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
                                 withAnimation {
                                     cardSelected[option] = false
                                 }
                             }
                         } label: {
                             Text(option)
-                                .font(.subheadline)
+                                .font(.footnote)
                                 .fontWeight(.medium)
                                 .foregroundColor(
                                     selection == option
@@ -319,27 +331,27 @@ struct DailySignalView: View {
                                     : Color("SecondaryText")
                                 )
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 10)
+                                .padding(.vertical, 8)
                                 .background(
                                     selection == option
                                     ? Color("AccentPrimary")
                                     : Color.clear
                                 )
-                                .cornerRadius(10)
+                                .cornerRadius(8)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
+                                    RoundedRectangle(cornerRadius: 8)
                                         .stroke(Color("CardBorder"))
                                 )
-                                .scaleEffect(cardSelected[option] ?? false ? 1.05 : 1.0)
+                                .scaleEffect(cardSelected[option] ?? false ? 1.04 : 1.0)
                         }
                     }
                 }
             }
-            .padding()
-            .frame(minHeight: 110)
+            .padding(12)
+            .frame(minHeight: 96)
             .background(Color("CardBackground"))
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4)
+            .cornerRadius(14)
+            .shadow(color: Color.black.opacity(0.035), radius: 6, x: 0, y: 3)
         }
     }
 }
@@ -348,6 +360,8 @@ struct DailySignalView: View {
     DailySignalView()
         .modelContainer(for: DailySignal.self)
 }
+
+
 
 
 
